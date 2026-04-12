@@ -1,26 +1,43 @@
 'use client';
 import { getSupabaseBrowserClient } from "@/lib/db/supabase/browser-client";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 
 export default function Signup() {
-  const router = useRouter();
   const supabase = getSupabaseBrowserClient();
 
   const [fullname, setFullname] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [success,setSuccess] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  async function handleGoogleSignup() {
+    setLoading(true)
+    setError(null)
+    const { error: oauthError } = await supabase.auth.signInWithOAuth(
+      {
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/callback`,
+          skipBrowserRedirect: false
+        }
+
+      }
+    )
+    if (oauthError) {
+      setError(oauthError.message)
+      setLoading(false)
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    if(loading) return //prevent multiple submits
+    if (loading) return //prevent multiple submits
 
     if (!email.includes("@")) {
       setError("Enter a valid email");
@@ -56,9 +73,9 @@ export default function Signup() {
     } else {
       setSuccess(true)
       // console.log('Signup successful! Data:', data);
-     }
-    
-    
+    }
+
+
   }
 
   return (
@@ -71,6 +88,15 @@ export default function Signup() {
             <p className="mt-2 text-sm leading-6 text-foreground/70">
               Make a new account to start practicing quizzes.
             </p>
+            <button
+            type="button"
+            onClick={handleGoogleSignup}
+            disabled={loading}
+            className="mx-auto mt-4 w-55 flex cursor-pointer items-center justify-center gap-2 rounded-full bg-[#131314] px-3 py-3 text-sm text-white transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <img src="/google.svg" alt="Google" className="h-5 w-5" />
+            {loading ? "Redirecting..." : "Continue with Google"}
+          </button>
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
@@ -136,7 +162,7 @@ export default function Signup() {
 
             {error && <p className="text-sm text-red-400">{error}</p>}
             {success && <p className="text-green-400 text-sm">Check your email to verify your account before signing in.
-</p>}
+            </p>}
             <button
               type="submit"
               disabled={loading}
@@ -151,6 +177,14 @@ export default function Signup() {
               </a>
             </div>
           </form>
+
+          <div
+            className="g_id_signin"
+            data-theme="filled_blue"
+            data-text="signup_with"
+          ></div>
+
+          
         </div>
       </div>
     </main>
