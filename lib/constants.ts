@@ -6,4 +6,4 @@ export const TOPICS = [
 ] as const;
 
 export type TopicRef = typeof TOPICS[number]["ref"];
-export type QuizCountsType = Record<TopicRef, number>;
+export type QuizSizeType = Record<TopicRef, number>;

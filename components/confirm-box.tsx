@@ -1,40 +1,53 @@
 'use client';
-import { Dispatch, SetStateAction, useState } from "react";
 
 type ConfirmBoxProps = {
+    title?: string;
     message?: string;
+    confirmLabel?: string;
+    cancelLabel?: string;
     onConfirm: () => void;
     onCancel: () => void;
 };
 
-export default function ConfirmBox({ message = 'Are you sure?', onConfirm, onCancel }: ConfirmBoxProps) {
+export default function ConfirmBox({
+    title = 'Submit quiz?',
+    message = 'Review your answers one last time before finishing this attempt.',
+    confirmLabel = 'Submit quiz',
+    cancelLabel = 'Keep reviewing',
+    onConfirm,
+    onCancel,
+}: ConfirmBoxProps) {
 
     return (
         <section
-            className="fixed inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm z-50 "
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm"
             onClick={(e) => {
                 if (e.target === e.currentTarget) onCancel();
             }}>
 
-            <div className="bg-background/90 border border-foreground/20 p-8 rounded-xl shadow-lg w-full max-w-lg overflow-auto">
-                <div className="flex flex-col space-y-4 items-center">
-                    <h2 className="text-sm mb-6 ">{message}</h2>
-                    <div className="flex flex-row justify-center gap-10 items-center ">
-                        <button
-                            onClick={onCancel}
-                            className="px-3 py-1 bg-accent text-background rounded-md hover:bg-accent/90 transition"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={onConfirm}
-                            className="px-3 py-1 bg-accent text-background rounded-md hover:bg-accent/90 transition"
-                        >
-                            Submit
-                        </button>
+            <div className="w-full max-w-md rounded-[2rem] border border-foreground/10 bg-background/95 p-7 shadow-2xl">
+                <div className="text-center">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent/15 text-2xl text-accent">
+                        !
                     </div>
+                    <h2 className="mt-4 text-2xl font-bold tracking-tight">{title}</h2>
+                    <p className="mt-3 text-sm leading-6 text-foreground/70">{message}</p>
                 </div>
 
+                <div className="mt-6 flex gap-3">
+                    <button
+                        onClick={onCancel}
+                        className="flex-1 rounded-full border border-foreground/15 px-4 py-3 text-sm font-medium transition hover:border-accent hover:text-accent"
+                    >
+                        {cancelLabel}
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className="flex-1 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-background transition hover:opacity-90"
+                    >
+                        {confirmLabel}
+                    </button>
+                </div>
             </div>
         </section >
     )

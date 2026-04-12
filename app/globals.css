@@ -20,3 +20,7 @@ body {
   font-family: var(--font-primary), Arial, Helvetica, sans-serif;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+

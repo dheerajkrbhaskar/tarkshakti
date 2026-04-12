@@ -6,12 +6,15 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "insert:questions": "node --env-file=.env.local lib/questions/insert-questions.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.10.0",
     "@supabase/supabase-js": "^2.101.1",
-    "next": "16.2.1",
+    "lucide-react": "^1.7.0",
+    "next": "^16.2.3",
+    "next-cloudinary": "^6.17.5",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

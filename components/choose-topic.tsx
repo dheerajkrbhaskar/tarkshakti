@@ -1,110 +1,139 @@
 'use client';
-import { generateQuiz } from "@/lib/actions/quiz.action";
 import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from "react";
-import { TOPICS, QuizCountsType } from "@/lib/constants";
+import { TOPICS, QuizSizeType } from "@/lib/constants";
+import { useUserAuth } from '@/contexts/user-auth-context';
+import type { GenerateQuizResponse, StoredQuizSession } from '@/lib/types/quiz';
 
 
 export default function ChooseTopic({ setMenuVisible }: { setMenuVisible: Dispatch<SetStateAction<boolean>> }) {
     const router = useRouter();
-    const [counts, setCounts] = useState<QuizCountsType>({ varc: 0, di: 0, lr: 0, qa: 0 });
-
-    const increment = (ref: keyof QuizCountsType) => setCounts(prev => ({ ...prev, [ref]: prev[ref] + 1 }));
-    const decrement = (ref: keyof QuizCountsType) => setCounts(prev => ({ ...prev, [ref]: Math.max(prev[ref] - 1, 0) }));
+    const [counts, setCounts] = useState<QuizSizeType>({ varc: 0, di: 0, lr: 0, qa: 0 });
+    const [loading, setLoading] = useState(false);
+    const totalQuestions = Object.values(counts).reduce((sum, value) => sum + value, 0);
+    const estimatedMinutes = Math.max(totalQuestions, 1);
+    const { user } = useUserAuth();
+    const increment = (ref: keyof QuizSizeType) => setCounts(prev => ({ ...prev, [ref]: prev[ref] + 1 }));
+    const decrement = (ref: keyof QuizSizeType) => setCounts(prev => ({ ...prev, [ref]: Math.max(prev[ref] - 1, 0) }));
 
     async function handleStart() {
-        if (Object.values(counts).reduce((a, b) => a + b, 0) === 0) {
+        if (!user) {
+            alert('Please sign in to start a quiz.');
+            return;
+        }
+
+        if (totalQuestions === 0) {
             alert("Please select at least one question to start the quiz.");
             return;
         }
-        // Proceed to start the quiz with the selected counts
-        // console.log(`Starting quiz with ${Object.values(counts).reduce((a, b) => a + b, 0)} questions!`);
 
+        setLoading(true);
 
-        const data = await generateQuiz(counts);
-        console.log('Generated quiz data:', data.quizId);
-        console.log('Questions array:', data.questions);
+        try {
+            const sessionResponse = await fetch('/api/quiz/session', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quizSize: counts }),
+            });
 
+            if (!sessionResponse.ok) {
+                const payload = await sessionResponse.json().catch(() => null);
+                throw new Error(payload?.error || 'Failed to create quiz session. Please try again.');
+            }
+            const data = await sessionResponse.json();
+            const sessionId = data.sessionId;
+            
+            
 
-        setMenuVisible(false);
-        router.push(`/quiz/${data.quizId}`); // Navigate to the quiz page with the generated quiz ID
+            sessionStorage.setItem(`quiz-session:${sessionId}`, JSON.stringify(data));
+
+            setMenuVisible(false);
+            router.push(`/quiz/${sessionId}`);
+        } catch (error) {
+            console.error(error);
+            alert('Unable to start quiz right now. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
-        // <section className="w-full overflow-hidden invisible pointer-events-none flex items-center justify-center py-16">
-        //     <button onClick={() => setMenuVisible(false)}>X</button>
-        //     <div>
-        //         {TOPICS.map((topic) => (
-        //             <div key={topic.ref} className="p-4 m-4 border border-foreground/20 rounded-lg hover:border-accent transition">
-        //                 <h3 className="text-xl font-medium mb-2">{topic.name}</h3>
-        //                 <p className="text-sm text-foreground/70">Number of questions: {topic.size}</p>
-        //                 <div>
-        //                     <button className="px-3 py-1 bg-accent text-background rounded-md hover:bg-accent/90 transition">^</button>
-        //                     <input type="number" name={topic.ref} id={topic.ref} placeholder="0" defaultValue={0} className="w-16 text-center border border-foreground/30 rounded-md mx-2 py-1 focus:border-accent focus:ring-0 focus:border-l-4 focus:border-l-accent transition" />
-        //                     <button className="px-3 py-1 bg-accent text-background rounded-md hover:bg-accent/90 transition">v</button>
-        //                 </div>
-        //             </div>
-        //         ))}
-        //     </div>
-        // </section>
-        <section 
-        className="fixed inset-0 flex items-center justify-center bg-background/70 backdrop-blur-sm z-50 p-4"
-        onClick={(e) => {
+        <section
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm"
+            onClick={(e) => {
                 if (e.target === e.currentTarget) setMenuVisible(false);
             }}
         >
-            <div className="bg-background/90 border border-foreground/20 p-8 rounded-xl shadow-lg w-full max-w-lg overflow-auto">
-                <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-2xl font-bold text-foreground">Choose Topics</h2>
+            <div className="w-full max-w-3xl rounded-4xl border border-foreground/10 bg-background/95 p-6 shadow-2xl">
+                <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
+                    <div>
+                        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-accent">Choose topics</p>
+                        <h2 className="mt-2 text-2xl font-bold tracking-tight">Build your quiz mix</h2>
+                    </div>
                     <button
                         onClick={() => setMenuVisible(false)}
-                        className="text-accent font-bold text-xl hover:text-accent/80 transition"
+                        className="rounded-full border border-foreground/10 px-3 py-1 text-sm text-foreground/70 transition hover:border-accent hover:text-accent"
                     >
-                        ×
+                        Close
                     </button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="mt-6 grid gap-4 md:grid-cols-2">
                     {TOPICS.map(topic => (
-                        <div
+                        <article
                             key={topic.ref}
-                            className="p-4 border border-foreground/20 rounded-lg hover:border-accent transition"
+                            className="rounded-3xl border border-foreground/10 bg-white/5 p-5 transition hover:border-accent/40"
                         >
-                            <h3 className="text-lg mb-2 text-foreground">{topic.name}</h3>
-                            <p className="text-sm text-foreground/70 mb-2">Avialable Questions: {topic.size}</p>
-                            <div className="flex flex-row justify-center items-center gap-2">
+                            <div className="flex items-start justify-between gap-4">
+                                <div>
+                                    <h3 className="text-lg font-semibold">{topic.name}</h3>
+                                    <p className="mt-1 text-sm text-foreground/65">Available questions: {topic.size}</p>
+                                </div>
+                                <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">
+                                    {topic.ref.toUpperCase()}
+                                </span>
+                            </div>
+
+                            <div className="mt-5 flex items-center justify-between rounded-2xl border border-foreground/10 bg-background/70 p-3">
                                 <button
-                                    onClick={() => counts[topic.ref] < topic.size && increment(topic.ref)}
-                                    className="px-3 py-1 bg-accent text-background rounded-md hover:bg-accent/90 transition"
-                                >
-                                    +
-                                </button>
-                                {/* <input
-                                    type="number"
-                                    value={counts[topic.ref]}
-                                    readOnly
-                                    className="w-16 text-center border border-foreground/30 rounded-md py-1 focus:border-accent focus:ring-0 focus:border-l-4 focus:border-l-accent transition"
-                                /> */}
-                                <span className="w-16 text-center border border-foreground/30 rounded-md py-1 focus:border-accent focus:ring-0 focus:border-l-4 focus:border-l-accent transition">{counts[topic.ref]}</span>
-                                <button
+                                    type="button"
                                     onClick={() => decrement(topic.ref)}
-                                    className="px-3 py-1 bg-accent text-background rounded-md hover:bg-accent/90 transition"
+                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/10 text-lg font-semibold transition hover:border-accent hover:text-accent"
                                 >
                                     −
                                 </button>
+                                <div className="text-center">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-foreground/50">Selected</p>
+                                    <p className="mt-1 text-2xl font-bold text-foreground">{counts[topic.ref]}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => counts[topic.ref] < topic.size && increment(topic.ref)}
+                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/10 text-lg font-semibold transition hover:border-accent hover:text-accent"
+                                >
+                                    +
+                                </button>
                             </div>
-                        </div>
+                        </article>
                     ))}
                 </div>
-                <div className="flex flex-col justify-center items-center mt-4">
+
+                <div className="mt-6 flex flex-col gap-4 border-t border-foreground/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                        <p className="text-sm text-foreground/65">Total selected</p>
+                        <p className="text-2xl font-bold">{totalQuestions} questions</p>
+                        <p className="mt-1 text-sm text-foreground/65">Estimated time: {estimatedMinutes} min</p>
+                    </div>
+
                     <button
-                        className="bg-accent text-background px-6 py-3 rounded-lg font-medium hover:opacity-90 transition"
+                        type="button"
+                        disabled={loading || totalQuestions === 0}
                         onClick={handleStart}
+                        className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-background transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
                     >
-                        Start with {Object.values(counts).reduce((a, b) => a + b, 0)} Questions
+                        {loading ? "Starting quiz..." : `Start quiz with ${totalQuestions} questions`}
                     </button>
                 </div>
-
             </div>
         </section>
     )

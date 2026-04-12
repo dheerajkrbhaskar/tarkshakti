@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins,Roboto } from "next/font/google";
 import "./globals.css";
+import { UserAuthContextProvider } from "@/contexts/user-auth-context";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -29,9 +30,14 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${poppins.variable} ${roboto.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <UserAuthContextProvider>
+          {children}
+        </UserAuthContextProvider>
+      </body>
     </html>
   );
 }
