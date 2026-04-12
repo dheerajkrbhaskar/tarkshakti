@@ -19,7 +19,7 @@ Dashboard should shows all the quizes attempted and score on click it should tha
 //GET route for simple rresult print
 export async function GET(
     _request: Request,
-    { params }: { params: { sessionId: string } }
+    { params }: { params: Promise<{ sessionId: string }> }
 ) {
     try {
         const supabase = await createSupabaseServerClient()
@@ -51,11 +51,11 @@ export async function GET(
             })
             : [];
 
-        const normalizedTotalScore = questions.reduce((sum, question) => {
+        const normalizedTotalScore = questions.reduce((sum: number, question: any) => {
             return sum + (question.isCorrect ? 1 : 0);
         }, 0);
 
-        const normalizedAttempted = questions.reduce((sum, question) => {
+        const normalizedAttempted = questions.reduce((sum: number, question: any) => {
             return sum + (question.selectedOptionText ? 1 : 0);
         }, 0);
 

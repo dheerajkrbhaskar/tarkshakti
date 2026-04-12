@@ -8,7 +8,7 @@ import { getCurrentQuestionForSession } from "@/lib/services/load-question.servi
 
 export async function GET(
     request: Request,
-    { params }: { params: { sessionId: string } }
+    { params }: { params: Promise<{ sessionId: string }> }
 ) {
     //1. validate user,check expiry time and fetch currentIdx ques from session_questions
     try {
@@ -49,7 +49,7 @@ export async function GET(
 }
 
 
-export async function PATCH(request: Request, { params }: { params: { sessionId: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ sessionId: string }> }) {
     try {
         const supabase = await createSupabaseServerClient()
         const { targetQuestionIndex } = await request.json() as { targetQuestionIndex: number }
