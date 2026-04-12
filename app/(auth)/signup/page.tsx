@@ -44,7 +44,7 @@ export default function Signup() {
       password,
       options: {
         data: { full_name: fullname.trim() },
-        emailRedirectTo: `${window.location.origin}/signin`
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/signin`
       }
     });
 
