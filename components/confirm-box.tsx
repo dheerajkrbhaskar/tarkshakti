@@ -25,7 +25,7 @@ export default function ConfirmBox({
                 if (e.target === e.currentTarget) onCancel();
             }}>
 
-            <div className="w-full max-w-md rounded-[2rem] border border-foreground/10 bg-background/95 p-7 shadow-2xl">
+            <div className="w-full max-w-md rounded-4xl border border-foreground/10 bg-background/95 p-7 shadow-2xl">
                 <div className="text-center">
                     <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent/15 text-2xl text-accent">
                         !
@@ -37,13 +37,13 @@ export default function ConfirmBox({
                 <div className="mt-6 flex gap-3">
                     <button
                         onClick={onCancel}
-                        className="flex-1 rounded-full border border-foreground/15 px-4 py-3 text-sm font-medium transition hover:border-accent hover:text-accent"
+                        className="app-btn app-btn-outline flex-1"
                     >
                         {cancelLabel}
                     </button>
                     <button
                         onClick={onConfirm}
-                        className="flex-1 rounded-full bg-accent px-4 py-3 text-sm font-semibold text-background transition hover:opacity-90"
+                        className="app-btn app-btn-accent flex-1"
                     >
                         {confirmLabel}
                     </button>

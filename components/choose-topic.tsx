@@ -3,7 +3,6 @@ import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from "react";
 import { TOPICS, QuizSizeType } from "@/lib/constants";
 import { useUserAuth } from '@/contexts/user-auth-context';
-import type { GenerateQuizResponse, StoredQuizSession } from '@/lib/types/quiz';
 
 
 export default function ChooseTopic({ setMenuVisible }: { setMenuVisible: Dispatch<SetStateAction<boolean>> }) {
@@ -42,8 +41,6 @@ export default function ChooseTopic({ setMenuVisible }: { setMenuVisible: Dispat
             }
             const data = await sessionResponse.json();
             const sessionId = data.sessionId;
-            
-            
 
             sessionStorage.setItem(`quiz-session:${sessionId}`, JSON.stringify(data));
 
@@ -59,57 +56,51 @@ export default function ChooseTopic({ setMenuVisible }: { setMenuVisible: Dispat
 
     return (
         <section
-            className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-4 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-background/70 p-3 backdrop-blur-sm"
             onClick={(e) => {
                 if (e.target === e.currentTarget) setMenuVisible(false);
             }}
         >
-            <div className="w-full max-w-3xl rounded-4xl border border-foreground/10 bg-background/95 p-6 shadow-2xl">
-                <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
+            <div className="w-full max-w-2xl rounded-3xl border border-foreground/10 bg-background/95 p-4 shadow-2xl sm:p-5">
+                <div className="flex items-center justify-between border-b border-foreground/10 pb-3">
                     <div>
-                        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-accent">Choose topics</p>
-                        <h2 className="mt-2 text-2xl font-bold tracking-tight">Build your quiz mix</h2>
+                        <h2 className="mt-1 text-lg font-bold tracking-tight sm:text-xl">Choose Topics</h2>
                     </div>
                     <button
                         onClick={() => setMenuVisible(false)}
-                        className="rounded-full border border-foreground/10 px-3 py-1 text-sm text-foreground/70 transition hover:border-accent hover:text-accent"
+                        className="rounded-full border border-foreground/10 px-2.5 py-1 text-xs text-foreground/70 transition hover:border-accent hover:text-accent"
                     >
                         Close
                     </button>
                 </div>
 
-                <div className="mt-6 grid gap-4 md:grid-cols-2">
+                <div className="mt-4 grid gap-3 md:grid-cols-2">
                     {TOPICS.map(topic => (
                         <article
                             key={topic.ref}
-                            className="rounded-3xl border border-foreground/10 bg-white/5 p-5 transition hover:border-accent/40"
+                            className="rounded-2xl border border-foreground/10 bg-white/5 p-3.5 transition hover:border-accent/40"
                         >
-                            <div className="flex items-start justify-between gap-4">
+                            <div className="flex items-start justify-between gap-3">
                                 <div>
-                                    <h3 className="text-lg font-semibold">{topic.name}</h3>
-                                    <p className="mt-1 text-sm text-foreground/65">Available questions: {topic.size}</p>
+                                    <h3 className="text-sm font-semibold leading-5 sm:text-base">{topic.name}</h3>
                                 </div>
-                                <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-accent">
-                                    {topic.ref.toUpperCase()}
-                                </span>
                             </div>
 
-                            <div className="mt-5 flex items-center justify-between rounded-2xl border border-foreground/10 bg-background/70 p-3">
+                            <div className="mt-3 flex items-center justify-between rounded-xl border border-foreground/10 bg-background/70 px-2.5 py-2">
                                 <button
                                     type="button"
                                     onClick={() => decrement(topic.ref)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/10 text-lg font-semibold transition hover:border-accent hover:text-accent"
+                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-foreground/10 text-base font-semibold transition hover:border-accent hover:text-accent"
                                 >
                                     −
                                 </button>
                                 <div className="text-center">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-foreground/50">Selected</p>
-                                    <p className="mt-1 text-2xl font-bold text-foreground">{counts[topic.ref]}</p>
+                                    <p className="mt-0.5 text-lg font-bold text-foreground">{counts[topic.ref]}</p>
                                 </div>
                                 <button
                                     type="button"
                                     onClick={() => counts[topic.ref] < topic.size && increment(topic.ref)}
-                                    className="flex h-10 w-10 items-center justify-center rounded-full border border-foreground/10 text-lg font-semibold transition hover:border-accent hover:text-accent"
+                                    className="flex h-8 w-8 items-center justify-center rounded-full border border-foreground/10 text-base font-semibold transition hover:border-accent hover:text-accent"
                                 >
                                     +
                                 </button>
@@ -118,18 +109,14 @@ export default function ChooseTopic({ setMenuVisible }: { setMenuVisible: Dispat
                     ))}
                 </div>
 
-                <div className="mt-6 flex flex-col gap-4 border-t border-foreground/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <p className="text-sm text-foreground/65">Total selected</p>
-                        <p className="text-2xl font-bold">{totalQuestions} questions</p>
-                        <p className="mt-1 text-sm text-foreground/65">Estimated time: {estimatedMinutes} min</p>
-                    </div>
+                <div className="mt-4 flex flex-col gap-3 border-t border-foreground/10 pt-3.5 sm:flex-row sm:items-center sm:justify-end">
+                    
 
                     <button
                         type="button"
                         disabled={loading || totalQuestions === 0}
                         onClick={handleStart}
-                        className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 text-sm font-semibold text-background transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="app-btn app-btn-accent"
                     >
                         {loading ? "Starting quiz..." : `Start quiz with ${totalQuestions} questions`}
                     </button>

@@ -24,9 +24,9 @@ export default function QuestionNavigator({
   const navButtonBase =
     "flex h-9 w-9 items-center justify-center rounded-full border text-xs font-semibold transition";
 
-  const disabledStyles = sendingOption
+  const interactionStyles = sendingOption
     ? "cursor-not-allowed opacity-50"
-    : "cursor-pointer hover:border-accent hover:text-accent";
+    : "cursor-pointer";
 
   return (
 
@@ -42,13 +42,13 @@ export default function QuestionNavigator({
           const isActive = index === currentIndex;
           const isDone = attemptedQuestions.has(index);
 
-          let buttonClass = `${navButtonBase} border-foreground/15 bg-background/60 text-foreground/70 ${disabledStyles}`;
+          let buttonClass = `${navButtonBase} border-foreground/15 bg-background/60 text-foreground/70 ${interactionStyles} ${!sendingOption ? "hover:border-accent hover:text-accent" : ""}`;
 
 
           if (isActive) {
-            buttonClass = `${navButtonBase} border-accent bg-accent text-background ${disabledStyles}`;
+            buttonClass = `${navButtonBase} border-accent bg-accent text-background ${interactionStyles} ${!sendingOption ? "hover:bg-accent hover:text-background" : ""}`;
           } else if (isDone) {
-            buttonClass = `${navButtonBase} border-green-500/40 bg-green-500/10 text-green-300 ${disabledStyles}`;
+            buttonClass = `${navButtonBase} border-green-500/40 bg-green-500/10 text-green-300 ${interactionStyles} ${!sendingOption ? "hover:border-green-400 hover:bg-green-500/20 hover:text-green-200" : ""}`;
           }
 
           return (

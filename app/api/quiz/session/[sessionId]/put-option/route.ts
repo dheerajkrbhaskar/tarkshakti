@@ -2,33 +2,37 @@
 
 import { createSupabaseServerClient } from "@/lib/db/supabase/server-client";
 import { putOption } from "@/lib/services/put-option.service";
-import { error } from "console";
 
 function mapPutOptionError(error: unknown): { status: number; message: string } {
     const message = error instanceof Error ? error.message : "Internal server error";
+    const normalized = message.toLowerCase();
 
-    if (message === "Unauthorized user") {
+    if (normalized === "unauthorized user") {
         return { status: 403, message };
     }
 
-    if (message === "Session Not Found") {
+    if (normalized === "session not found") {
         return { status: 404, message };
     }
 
-    if (message === "Session not active") {
+    if (normalized === "session not active") {
         return { status: 409, message };
     }
 
-    if (message === "Session Expired") {
+    if (normalized === "session expired") {
         return { status: 410, message };
     }
 
-    if (message === "Question not found") {
+    if (normalized === "question not found") {
         return { status: 404, message };
     }
 
     if (message === "Invalid session id" || message === "Invalid Input") {
         return { status: 400, message };
+    }
+
+    if (normalized.includes("invalid input syntax for type uuid")) {
+        return { status: 400, message: "Invalid selected option value" };
     }
 
     if (
@@ -88,7 +92,6 @@ export async function POST(
         }
 
         const remainingTime = await putOption({
-            userId: user.id,
             sessionId,
             selected_option,
             time_taken_s

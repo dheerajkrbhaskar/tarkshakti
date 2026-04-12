@@ -47,7 +47,7 @@ export async function POST(request: Request) {
             )
         }
 
-        const { session, totalQuestions, remainingTime } = await createQuizSession({ userId: user.id, quizSize })
+        const { session, totalQuestions, remainingTime } = await createQuizSession({ quizSize })
 
         return new Response(
             JSON.stringify({

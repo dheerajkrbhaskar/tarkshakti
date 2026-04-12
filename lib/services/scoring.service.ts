@@ -1,11 +1,11 @@
 import { createSupabaseServerClient } from "../db/supabase/server-client"
 
-export async function getScore(sessionId: string, userId:string) {
-    if (!sessionId || !userId) throw new Error("Invalid session id")
+export async function getScore(sessionId: string) {
+    if (!sessionId) throw new Error("Invalid session id")
 
     const supabase = await createSupabaseServerClient()
 
-    const { data: score, error: scoreError } = await supabase.rpc('get_quiz_score', { p_session_id: sessionId, p_user_id:userId })
+    const { data: score, error: scoreError } = await supabase.rpc('finalize_quiz_session', { p_session_id: sessionId })
 
     if (scoreError || score === null) {
         console.error("Loading question failed", scoreError)

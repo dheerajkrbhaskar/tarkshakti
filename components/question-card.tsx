@@ -1,6 +1,7 @@
 'use client';
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
+import { isEquivalentOptionValue } from "@/lib/questions/content";
 import type { QuestionContentBlock, QuizOptionItem } from "@/lib/types/quiz";
 
 type QuestionCardProps = {
@@ -31,7 +32,7 @@ export default function QuestionCard({
 }: QuestionCardProps) {
 
 
-    const selectedOptionLabel = options.find((option) => option.value === userAnswer)?.text || null;
+    const selectedOptionLabel = options.find((option) => isEquivalentOptionValue(option.value, userAnswer))?.text || null;
 
     function renderBlocks(blocks: QuestionContentBlock[], prefix: string) {
         return blocks.map((block, index) => {
@@ -85,14 +86,14 @@ export default function QuestionCard({
                                 disabled={sendingOption}
                                 onClick={() => onOptionSelect(option.value)}
                                 className={`flex w-full items-center justify-between rounded-2xl border text-left transition ${compact ? 'px-3.5 py-3' : 'px-4 py-4'}
-                                ${userAnswer === option.value ? 'border-accent bg-accent text-background shadow-md' : 'border-foreground/10 bg-background/60 text-foreground hover:border-accent/40 hover:bg-white/10'}
+                                ${isEquivalentOptionValue(option.value, userAnswer) ? 'border-accent bg-accent text-background shadow-md' : 'border-foreground/10 bg-background/60 text-foreground hover:border-accent/40 hover:bg-white/10'}
                                 ${sendingOption ? 'cursor-not-allowed opacity-80' : ''}`}
                             >
                                 <div className={`${compact ? 'text-sm font-medium' : 'font-medium'}`}>
                                     {option.blocks.length > 0 ? renderBlocks(option.blocks, `option-${idx}`) : option.text}
                                 </div>
-                                <span className={`ml-4 flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold ${userAnswer === option.value ? 'border-background/70 text-background' : 'border-foreground/20 text-foreground/60'}`}>
-                                    {(userAnswer === option.value) && sendingOption ? <Loader2 className="h-4 w-4 animate-spin" /> : (userAnswer === option.value ? '✓' : String.fromCharCode(65 + idx))}
+                                <span className={`ml-4 flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold ${isEquivalentOptionValue(option.value, userAnswer) ? 'border-background/70 text-background' : 'border-foreground/20 text-foreground/60'}`}>
+                                    {(isEquivalentOptionValue(option.value, userAnswer)) && sendingOption ? <Loader2 className="h-4 w-4 animate-spin" /> : (isEquivalentOptionValue(option.value, userAnswer) ? '✓' : String.fromCharCode(65 + idx))}
 
                                 </span>
                             </button>

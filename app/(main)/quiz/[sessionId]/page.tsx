@@ -1,6 +1,4 @@
 'use client';
-import { Loader2 } from "lucide-react";
-
 import ConfirmBox from "@/components/confirm-box";
 import QuestionCard from "@/components/question-card";
 import QuestionNavigator from "@/components/question-navigator";
@@ -24,6 +22,7 @@ export default function QuizPage() {
   const [attempted, setAttempted] = useState<Set<number>>(new Set());
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [sendingOption, setSendingOption] = useState(false)
+  const [timedOut, setTimedOut] = useState(false);
   const isSubmittedRef = useRef(false);
 
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -79,9 +78,30 @@ export default function QuizPage() {
   }, [loadQuestion]);
 
   const finalizeQuiz = useCallback(() => {
+    if (isSubmittedRef.current) {
+      return;
+    }
     isSubmittedRef.current = true;
     router.push(`/quiz/${sessionId}/score`)
   }, [sessionId])
+
+  const handleTimeout = useCallback(() => {
+    if (isSubmittedRef.current) {
+      return;
+    }
+
+    setConfirmVisible(false);
+    setTimedOut(true);
+  }, []);
+
+  useEffect(() => {
+    if (!timedOut || isSubmittedRef.current || !sessionId) {
+      return;
+    }
+
+    isSubmittedRef.current = true;
+    router.push(`/quiz/${sessionId}/score`);
+  }, [router, sessionId, timedOut]);
 
   // const finalizeQuiz = useCallback((reason: QuizFinalizeReason) => {
   //   if (!sessionId || !questionData || isSubmittedRef.current) {
@@ -165,7 +185,7 @@ export default function QuizPage() {
 
   const { time, minutes, seconds } = useQuizTimer(
     remainingTime,
-    () => alert("timeout"),
+    handleTimeout,
     Boolean(data) && !isSubmittedRef.current
   );
 
@@ -173,6 +193,7 @@ export default function QuizPage() {
   async function onOptionSelect(option: string) {
     setSelectedOption(option);
     if (!sessionId || !option) return
+    if (loadingQuestion) return
     setSendingOption(true)
     try {
       const elapsedSeconds = Math.max(questionStartRemaining - time, 0);
@@ -264,6 +285,9 @@ export default function QuizPage() {
     }
   }
   function handleSubmit() {
+    if (loadingQuestion || sendingOption) {
+      return;
+    }
     // if (!isFullscreen) {
     //   setShowFullScreenHelp(true);
     //   alert('Submission blocked: re-enter fullscreen. Violation rule is active and two violations will end the quiz.');
@@ -278,14 +302,11 @@ export default function QuizPage() {
 
     finalizeQuiz()
   }
-
-
-  if (loadingQuestion) {
+  if (loadingQuestion && !data && !loadError) {
     return (
       <main className={pageShell}>
-        <div className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center text-center">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          <p className="text-foreground/70">Loading your quiz...</p>
+        <div className="mx-auto flex min-h-[60vh] max-w-3xl items-center justify-center">
+          <p className="text-sm text-foreground/70">Preparing your quiz...</p>
         </div>
       </main>
     );
@@ -327,7 +348,8 @@ export default function QuizPage() {
             </div>
             <button
               onClick={handleSubmit}
-              className="rounded-full bg-accent px-4 py-2 text-xs font-semibold text-background transition hover:opacity-90 sm:px-5 sm:py-2.5 sm:text-sm"
+              disabled={loadingQuestion || sendingOption}
+              className="app-btn app-btn-accent"
             >
               Submit
             </button>
@@ -360,7 +382,7 @@ export default function QuizPage() {
               question={data.question?.title || 'Question Not available'}
               questionBlocks={data.question?.titleBlocks || []}
               options={data.question?.options || []}
-              sendingOption={sendingOption}
+              sendingOption={sendingOption || loadingQuestion}
               userAnswer={selectedOption}
               onOptionSelect={onOptionSelect}
             />
