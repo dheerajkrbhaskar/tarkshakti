@@ -22,7 +22,7 @@ export default function Signup() {
       {
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/callback`,
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/callback`,
           skipBrowserRedirect: false
         }
 
