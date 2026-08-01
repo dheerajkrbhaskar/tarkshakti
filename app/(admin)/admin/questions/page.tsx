@@ -116,43 +116,48 @@ export default function AdminQuestionsPage() {
 
   return (
     <section className="space-y-4">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-accent">Admin Questions</p>
-          <h1 className="mt-2 text-2xl font-bold tracking-tight">Question Bank</h1>
-          <p className="mt-1 text-sm text-foreground/70">Filter by topic/subtopic and manage JSONB question content.</p>
+      <div className="rounded-2xl border border-foreground/10 bg-white/5 p-4 shadow-sm">
+      <div className="xl:sticky xl:top-4 xl:h-fit">
+          <FilterPanel
+            topics={topics}
+            selectedTopicId={filters.topic_id}
+            selectedSubtopicId={filters.subtopic_id}
+            onApply={(next) => setFilters(next)}
+          />
         </div>
 
-        <button
-          type="button"
-          className="rounded-xl bg-accent px-4 py-2 text-sm font-semibold text-background transition hover:opacity-90"
-          onClick={() => {
-            setActiveQuestion(null);
-            setModalMode("create");
-            setModalOpen(true);
-          }}
-        >
-          New Question
-        </button>
+        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+          <article className="rounded-xl border border-foreground/10 bg-background/40 p-3">
+            <p className="text-xs uppercase tracking-[0.16em] text-foreground/60">Total Loaded</p>
+            <p className="mt-1 text-xl font-semibold">{rows.length}</p>
+          </article>
+          <article className="rounded-xl border border-foreground/10 bg-background/40 p-3">
+            <p className="text-xs uppercase tracking-[0.16em] text-foreground/60">Topic Filter</p>
+            <p className="mt-1 text-sm font-medium">{filters.topic_id ? `ID ${filters.topic_id}` : "All topics"}</p>
+          </article>
+          <article className="rounded-xl border border-foreground/10 bg-background/40 p-3">
+            <p className="text-xs uppercase tracking-[0.16em] text-foreground/60">Subtopic Filter</p>
+            <p className="mt-1 text-sm font-medium">{filters.subtopic_id ? `ID ${filters.subtopic_id}` : "All subtopics"}</p>
+          </article>
+        </div>
       </div>
 
-      <FilterPanel
-        topics={topics}
-        selectedTopicId={filters.topic_id}
-        selectedSubtopicId={filters.subtopic_id}
-        onApply={(next) => setFilters(next)}
-      />
+      <div className="">
+        
 
-      <QuestionTable
-        rows={rows}
-        loading={loading}
-        onEdit={(question) => {
-          setActiveQuestion(question);
-          setModalMode("edit");
-          setModalOpen(true);
-        }}
-        onDelete={handleDelete}
-      />
+        <div className="rounded-2xl border border-foreground/10 bg-white/5 p-3 shadow-sm">
+          <QuestionTable
+            rows={rows}
+            loading={loading}
+            onEdit={(question) => {
+              setActiveQuestion(question);
+              setModalMode("edit");
+              setModalOpen(true);
+            }}
+            onDelete={handleDelete}
+          />
+        </div>
+      </div>
 
       <QuestionModal
         open={modalOpen}

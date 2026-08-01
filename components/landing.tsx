@@ -1,6 +1,5 @@
 'use client';
 
-import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import ChooseTopic from "@/components/choose-topic";
@@ -35,12 +34,12 @@ export default function Landing() {
             >
               Quick Start
             </button>
-            <Link
-              href="/how-it-works"
+            <a
+              href="#how-it-works"
               className="rounded-full border border-foreground/15 px-6 py-3 text-sm font-medium text-foreground transition hover:border-accent hover:text-accent"
             >
               How it works
-            </Link>
+            </a>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
@@ -57,41 +56,29 @@ export default function Landing() {
           </div>
         </div>
 
-        <div className="relative">
+        <div className="relative rounded-4xl border border-foreground/10 bg-white/5 p-5 shadow-2xl backdrop-blur sm:p-6">
           <div className="absolute -left-6 top-8 h-24 w-24 rounded-full bg-accent/15 blur-2xl" />
           <div className="absolute -right-6 bottom-8 h-24 w-24 rounded-full bg-foreground/10 blur-2xl" />
 
-          <div className="rounded-4xl border border-foreground/10 bg-white/5 p-5 shadow-2xl backdrop-blur sm:p-6">
-            <div className="flex items-center justify-between border-b border-foreground/10 pb-4">
-              <div>
-                <p className="text-sm font-semibold text-accent">Study dashboard preview</p>
-                <p className="mt-1 text-xs text-foreground/60">Simple flow from quiz to review</p>
-              </div>
-              <div className="rounded-full border border-foreground/10 px-3 py-1 text-xs text-foreground/70">
-                Practice mode
-              </div>
-            </div>
+          <div className="overflow-hidden rounded-3xl border border-foreground/10 bg-background/60 p-3">
+            <Image
+              src="/coverImage.svg"
+              alt="Quiz Illustration"
+              width={900}
+              height={900}
+              className="h-auto w-full object-contain"
+              priority
+            />
+          </div>
 
-            <div className="mt-5 overflow-hidden rounded-3xl border border-foreground/10 bg-background/60 p-3">
-              <Image
-                src="/coverImage.svg"
-                alt="Quiz Illustration"
-                width={900}
-                height={900}
-                className="h-auto w-full object-contain"
-                priority
-              />
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-foreground/10 bg-background/60 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-foreground/50">Focus</p>
+              <p className="mt-2 text-sm font-medium">Stay on one topic until it clicks.</p>
             </div>
-
-            <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-foreground/10 bg-background/60 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-foreground/50">Focus</p>
-                <p className="mt-2 text-sm font-medium">Stay on one topic until it clicks.</p>
-              </div>
-              <div className="rounded-2xl border border-foreground/10 bg-background/60 p-4">
-                <p className="text-xs uppercase tracking-[0.2em] text-foreground/50">Outcome</p>
-                <p className="mt-2 text-sm font-medium">Turn each attempt into a learning step.</p>
-              </div>
+            <div className="rounded-2xl border border-foreground/10 bg-background/60 p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-foreground/50">Outcome</p>
+              <p className="mt-2 text-sm font-medium">Turn each attempt into a learning step.</p>
             </div>
           </div>
         </div>
@@ -135,9 +122,6 @@ export default function Landing() {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-accent">
               Features
             </p>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Key tools for daily CAT practice.
-            </h2>
             <p className="text-base leading-7 text-foreground/70 sm:text-lg">
               The platform is intentionally simple, but every part is there to support better preparation.
             </p>

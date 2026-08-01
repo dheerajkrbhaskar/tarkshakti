@@ -1,6 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/db/supabase/server-client";
 import type { Question, QuestionFilter, QuestionWriteInput } from "@/lib/models/question.model";
 import { parseJsonInput } from "@/lib/models/question.model";
+import { contentValueToText, normalizeContentBlocks } from "@/lib/questions/content";
+
+
 
 function normalizeQuestionInput(input: QuestionWriteInput) {
   return {
@@ -142,4 +145,97 @@ export async function getSessionAnalytics() {
     completedSessions: rows.filter((row) => row.status !== "active").length,
     rows,
   };
+}
+
+
+
+
+export type QuestionImageRow = {
+  question_id: number;
+  question_title: string;
+  image_url: string;
+  source: "title" | "options" | "correct_option" | "explanation";
+};
+
+function normalizeImageUrl(raw: string) {
+  if (raw.startsWith("http://") || raw.startsWith("https://") || raw.startsWith("/")) {
+    return raw;
+  }
+  return `/${raw}`;
+}
+
+function extractImages(
+  value: unknown,
+  source: "title" | "options" | "correct_option" | "explanation"
+) {
+  return normalizeContentBlocks(value)
+    .filter((block) => block.type === "image" && block.value?.trim().length > 0)
+    .map((block) => ({
+      image_url: normalizeImageUrl(block.value.trim()),
+      source,
+    }));
+}
+
+export async function getQuestionImages() {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("questions")
+    .select("id,title,options,correct_option,explanation")
+    .order("id", { ascending: false });
+
+
+  if (error) {
+    throw new Error(`Failed to fetch question images: ${error.message}`);
+  }
+
+  const rows: QuestionImageRow[] = [];
+
+  for (const question of data ?? []) {
+    const questionTitle =
+      contentValueToText(question.title).trim() ||
+      `Question #${question.id}`;
+
+    const imageItems = [
+      ...extractImages(question.title, "title"),
+      ...extractImages(question.options, "options"),
+      ...extractImages(question.correct_option, "correct_option"),
+      ...extractImages(question.explanation, "explanation"),
+    ];
+
+    for (const image of imageItems) {
+      rows.push({
+        question_id: question.id,
+        question_title: questionTitle,
+        image_url: image.image_url,
+        source: image.source,
+      });
+    }
+  }
+
+  return rows;
+}
+
+type MappingRow = {
+  oldName: string;
+  newUrl: string;
+};
+
+// Updated backend mapping function
+export async function getImageMappingTable(): Promise<MappingRow[]> {
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("image_map")
+    .select("old_name, new_url")
+    .order("old_name", { ascending: false });  // Change from 'id' to 'old_name'
+
+  if (error) {
+    throw new Error(`Failed to fetch mapping table: ${error.message}`);
+  }
+
+  return data.map((item) => ({
+    oldName: item.old_name,
+    newUrl: item.new_url,
+  }));
 }

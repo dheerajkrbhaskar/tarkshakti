@@ -1,6 +1,8 @@
 import { createSupabaseServerClient } from "@/lib/db/supabase/server-client";
 import type { Subtopic, Topic } from "@/lib/models/topic.model";
 
+type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
+
 export async function getTopics(): Promise<Topic[]> {
   const supabase = await createSupabaseServerClient();
 
@@ -16,8 +18,11 @@ export async function getTopics(): Promise<Topic[]> {
   return (data ?? []) as Topic[];
 }
 
-export async function getSubtopics(topicId?: number): Promise<Subtopic[]> {
-  const supabase = await createSupabaseServerClient();
+export async function getSubtopics(
+  topicId?: number,
+  supabaseClient?: SupabaseServerClient
+): Promise<Subtopic[]> {
+  const supabase = supabaseClient ?? await createSupabaseServerClient();
 
   let query = supabase
     .from("subtopics")

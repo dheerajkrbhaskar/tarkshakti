@@ -13,8 +13,8 @@ export default function Header() {
 
       {/* Title */}
       <h1 className="text-lg sm:text-2xl font-bold tracking-tight">
-        <span className="text-accent">Quiz</span>
-        <span className="text-foreground">App</span>
+        <span className="text-accent">Tark</span>
+        <span className="text-foreground">shakti</span>
       </h1>
 
       {/* Nav */}

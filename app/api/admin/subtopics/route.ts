@@ -1,15 +1,17 @@
-import { getAdminAuth } from "@/lib/services/admin/auth.service";
+import { isAdminEmail } from "@/lib/services/admin/auth.service";
 import { getSubtopics } from "@/lib/services/admin/topic.service";
+import { createSupabaseServerClient } from "@/lib/db/supabase/server-client";
 
 export async function GET(request: Request) {
   try {
-    const auth = await getAdminAuth();
+    const supabase = await createSupabaseServerClient();
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-    if (!auth) {
+    if (error || !user) {
       return Response.json({ success: false, error: "Unauthorized", data: [] }, { status: 401 });
     }
 
-    if (!auth.isAdmin) {
+    if (!isAdminEmail(user.email)) {
       return Response.json({ success: false, error: "Forbidden", data: [] }, { status: 403 });
     }
 
@@ -17,7 +19,10 @@ export async function GET(request: Request) {
     const topicParam = searchParams.get("topic_id");
     const topicId = topicParam ? Number(topicParam) : undefined;
 
-    const subtopics = await getSubtopics(typeof topicId === "number" && !Number.isNaN(topicId) ? topicId : undefined);
+    const subtopics = await getSubtopics(
+      typeof topicId === "number" && !Number.isNaN(topicId) ? topicId : undefined,
+      supabase
+    );
 
     return Response.json({ success: true, data: subtopics }, { status: 200 });
   } catch (error) {

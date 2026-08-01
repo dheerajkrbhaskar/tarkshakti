@@ -7,6 +7,11 @@ const cards = [
     href: "/admin/questions",
   },
   {
+    title: "See All Images",
+    description: "Browse every image used in questions, including preview, direct URL, and attached question title.",
+    href: "/admin/images",
+  },
+  {
     title: "Session Analytics",
     description: "Inspect session and answer activity from quiz_sessions and session_answers.",
     href: "/admin/analytics",
@@ -24,7 +29,7 @@ export default function AdminHomePage() {
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => (
           <article key={card.title} className="rounded-2xl border border-foreground/10 bg-white/5 p-5 shadow-sm">
             <h2 className="text-lg font-semibold">{card.title}</h2>
